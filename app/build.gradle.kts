@@ -30,9 +30,24 @@ android {
         }
     }
 
+    signingConfigs {
+        // Local sideload key (gitignored); CI/other machines fall back to the debug key.
+        create("release") {
+            val ks = file(System.getProperty("user.home") + "/.android/restroom-release.jks")
+            if (ks.exists()) {
+                storeFile = ks
+                storePassword = "restroom-release"
+                keyAlias = "restroom"
+                keyPassword = "restroom-release"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = if (file(System.getProperty("user.home") + "/.android/restroom-release.jks").exists())
+                signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
 
